@@ -1,0 +1,31 @@
+name: Sync Upstream
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Runs daily at 00:00 UTC
+  workflow_dispatch: # Allows manual trigger from the UI
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Sync with upstream
+        run: |
+          git remote add upstream https://github.com/anza-xyz/agave.git
+          git fetch upstream
+          git checkout master
+          git merge upstream/master --no-edit
+          git push origin master
